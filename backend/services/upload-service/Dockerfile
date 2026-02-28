@@ -1,7 +1,14 @@
-FROM node:18
+FROM node:20-slim
 
-WORKDIR /src
+WORKDIR /app
+
 COPY package*.json ./
 RUN npm install
+
 COPY . .
-CMD ["npm", "run", "dev"]
+
+RUN npm run build
+
+EXPOSE 8001
+
+CMD ["npm","run","dev"]

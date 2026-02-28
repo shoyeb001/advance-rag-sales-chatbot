@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rds_user"]
+      test: ["CMD-SHELL", "pg_isready -U rds_user -d postgres_rds"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -56,6 +56,21 @@ services:
     restart: unless-stopped
     ports:
       - 8001:8001
+    volumes:
+      - ./services/upload-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - RDS_DB_HOST=postgres_rds
+      - RDS_DB_PORT=5432
+      - RDS_DB_USER=rds_user
+      - RDS_DB_PASSWORD=postgres
+      - RDS_DB_NAME=postgres_rds
+      - VECTOR_DB_HOST=postgres_vector
+      - VECTOR_DB_PORT=5432
+      - VECTOR_DB_USER=vector_user
+      - VECTOR_DB_PASSWORD=postgres
+      - VECTOR_DB_NAME=vector_db
     depends_on:
       postgres_rds:
         condition: service_healthy

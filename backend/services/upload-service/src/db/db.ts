@@ -3,19 +3,20 @@ import { Pool } from "pg";
 import { migrate } from "postgres-migrations";
 
 export const pool = new Pool({
-    host: process.env.DB_HOST,
+    host: process.env.RDS_DB_HOST,
     port: Number(process.env.RDS_DB_PORT),
     user: process.env.RDS_DB_USER,
-    password: process.env.RDS_DB_PASSWORD?.toString(),
-    database: process.env.DB_NAME,
+    password: process.env.RDS_DB_PASSWORD,
+    database: process.env.RDS_DB_NAME,
 })
 
 export const runMigrate = async () => {
     const client = await pool.connect()
     try {
-        await migrate({ client }, path.resolve(__dirname, "migrations/sql"))
+       await migrate({ client }, path.resolve(process.cwd(), "src/db/migrations"));
     } catch (e) {
-        console.log("Error running migrations")
+        console.error("Error running migrations:", e)
+        throw e
     } finally {
         client.release()
     }
