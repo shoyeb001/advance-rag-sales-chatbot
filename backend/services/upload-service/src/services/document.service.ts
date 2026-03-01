@@ -3,7 +3,7 @@ import { TDocument } from "../@types";
 const createDocumentService = async (document: TDocument) => {
     const result = await pool.query(
         `
-        INSERT INTO documents (tenant_id, file_type, module_type, storage_key, staus)
+        INSERT INTO documents (tenant_id, file_type, module_type, storage_key, status)
         VALUES ($1, $2, $3, $4, 'uploaded')
         RETURNING *
         `,

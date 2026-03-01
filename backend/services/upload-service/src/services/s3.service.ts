@@ -11,14 +11,20 @@ const s3Client = new S3Client({
     forcePathStyle: true
 })
 
-export async function uploadToS3(file: Express.Multer.File){
+export async function uploadToS3(file: Express.Multer.File) {
     const key = `${uuidv4()}-${file.originalname}`;
-    await s3Client.send(
-        new PutObjectCommand({
-            Bucket: process.env.S3_BUCKET_NAME!,
-            Key: key,
-            Body: file.buffer,
-        })
-    );
-    return key
+    try {
+        await s3Client.send(
+            new PutObjectCommand({
+                Bucket: process.env.S3_BUCKET!,
+                Key: key,
+                Body: file.buffer,
+            })
+        );
+        return key
+    } catch (error) {
+        console.log("Error uploading to S3:", error);
+        throw error;
+    }
+
 }
