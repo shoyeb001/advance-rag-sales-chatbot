@@ -1,5 +1,16 @@
 version: "3.9"
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
   postgres_rds:
     image: postgres:16
     container_name: rds-db
@@ -76,12 +87,15 @@ services:
       - S3_SECRET_KEY=minio123
       - S3_BUCKET=documents
       - S3_REGION=us-east-1
+      - RABBITMQ_URL=amqp://admin:admin123@rabbitmq:5672
     depends_on:
       postgres_rds:
         condition: service_healthy
       postgres_vector:
         condition: service_healthy
       minio:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     env_file:
       - .env
@@ -90,3 +104,4 @@ volumes:
   postgres_data:
   postgres_vector:
   minio:
+  rabbitmq_data:
