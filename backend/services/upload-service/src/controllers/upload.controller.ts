@@ -14,7 +14,7 @@ export const uploadFile = async (req: Request, res: Response) => {
         const storageKey = await uploadToS3(file);
         const document = await createDocumentService({ tenantId, fileType: file.mimetype, moduleType, storageKey });
         //publishing event to rabbitmq for file uploaded
-        publishToQueue('file-upload-events', 'file.uploaded', document);
+        await publishToQueue('file-upload-events', 'file.uploaded', document);
         return res.status(200).json({ message: "File uploaded successfully", document })
     } catch (e) {
         console.log(e)

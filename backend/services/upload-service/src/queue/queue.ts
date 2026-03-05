@@ -3,6 +3,7 @@ import ampq from 'amqplib';
 let channel: ampq.Channel;
 
 export async function connectQueue() {
+    console.log(process.env.RABBITMQ_URL!, "rabbit mq url")
     const connection = await ampq.connect(process.env.RABBITMQ_URL!);
     channel = await connection.createChannel(); //creating channel
     console.log('RabbitMQ connected');
@@ -17,6 +18,6 @@ export const publishToQueue = async (exchange: string, route: string, message: a
         exchange,
         route,
         Buffer.from(JSON.stringify(message)),
-        {persistent:true}
+        { persistent: true }
     )
 }

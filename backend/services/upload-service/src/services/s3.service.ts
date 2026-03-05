@@ -12,7 +12,7 @@ const s3Client = new S3Client({
 })
 
 export async function uploadToS3(file: Express.Multer.File) {
-    const key = `${uuidv4()}-${file.originalname}`;
+    const key = `${uuidv4()}-${file.originalname.replace(/\s+/g, "-")}`;
     try {
         await s3Client.send(
             new PutObjectCommand({

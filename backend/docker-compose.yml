@@ -6,9 +6,15 @@ services:
     restart: unless-stopped
     ports:
       - "5672:5672"
+      - "15672:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin123
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
   postgres_rds:
@@ -71,6 +77,16 @@ services:
       - ./services/upload-service:/app
       - /app/node_modules
     command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: ./services/upload-service
+          target: /app
+          ignore:
+            - node_modules
+            - dist
+        - action: rebuild
+          path: ./services/upload-service/package.json
     environment:
       - RDS_DB_HOST=postgres_rds
       - RDS_DB_PORT=5432
@@ -96,7 +112,56 @@ services:
       minio:
         condition: service_started
       rabbitmq:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  embedding-service:
+    build: ./services/embedding-service
+    container_name: embedding-service
+    restart: unless-stopped
+    ports:
+      - 8002:8002
+    volumes:
+      - ./services/embedding-service:/app
+      - /app/node_modules
+    command: npm run dev
+    develop:
+      watch:
+        - action: sync
+          path: ./services/embedding-service
+          target: /app
+          ignore:
+            - dist
+        - action: rebuild
+          path: ./services/embedding-service/package.json
+    environment:
+      - RDS_DB_HOST=postgres_rds
+      - RDS_DB_PORT=5432
+      - RDS_DB_USER=rds_user
+      - RDS_DB_PASSWORD=postgres
+      - RDS_DB_NAME=postgres_rds
+      - VECTOR_DB_HOST=postgres_vector
+      - VECTOR_DB_PORT=5432
+      - VECTOR_DB_USER=vector_user
+      - VECTOR_DB_PASSWORD=postgres
+      - VECTOR_DB_NAME=vector_db
+      - S3_ENDPOINT=http://minio:9000
+      - S3_ACCESS_KEY=minio
+      - S3_SECRET_KEY=minio123
+      - S3_BUCKET=documents
+      - S3_REGION=us-east-1
+      - RABBITMQ_URL=amqp://admin:admin123@rabbitmq:5672
+      - OPENROUTER_API_KEY=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
+    depends_on:
+      postgres_rds:
+        condition: service_healthy
+      postgres_vector:
+        condition: service_healthy
+      minio:
         condition: service_started
+      rabbitmq:
+        condition: service_healthy
     env_file:
       - .env
 
