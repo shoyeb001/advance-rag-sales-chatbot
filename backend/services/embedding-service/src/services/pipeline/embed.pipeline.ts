@@ -6,6 +6,7 @@ import { insertChunks } from "../insert-chunk.service";
 export const ingestDocument = async (text: string, documentId: string, metadata: any) => {
     const contextual = contextualChunk(text);
     const symantic = await mergeSymanticChunks(contextual);
+    console.log("INFO: Contextual chunks:", contextual);
     const enrichedChunks = symantic.map((chunk) => {
         const embeddingText = `
         Document: ${metadata.title}
@@ -15,7 +16,8 @@ export const ingestDocument = async (text: string, documentId: string, metadata:
         console.log("DEBUG: Embedding Text in ingestDocument", embeddingText);
         return {
             raw: chunk,
-            embeddingText
+            embeddingText,
+            embedding_text: text
         }
     });
 
@@ -27,6 +29,7 @@ export const ingestDocument = async (text: string, documentId: string, metadata:
     const rowsToInsert = enrichedChunks.map((chunk, index) => ({
         document_id: documentId,
         content: chunk.raw,
+        embedding_text: chunk.embeddingText,
         embedding: vectors[index],
         metadata: {
             title: metadata.title,

@@ -152,7 +152,8 @@ services:
       - S3_BUCKET=documents
       - S3_REGION=us-east-1
       - RABBITMQ_URL=amqp://admin:admin123@rabbitmq:5672
-      - OPENROUTER_API_KEY=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
+      - OPENROUTER_API_KEY=
+      - HUGGING_FACE_TOKEN=
     depends_on:
       postgres_rds:
         condition: service_healthy

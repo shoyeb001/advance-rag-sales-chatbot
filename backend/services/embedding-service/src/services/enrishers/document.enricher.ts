@@ -28,7 +28,7 @@ export const enrichDocument = async (document: string) => {
         console.log("LLM enrichment response:", res)
         return JSON.parse(res.content as string)
     } catch (error) {
-        console.error("LLM enrichment error:", error)
-        return null
+        console.error("ERROR: LLM enrichment error:", error)
+        throw new Error("Failed to enrich document")
     }
 }
