@@ -23,7 +23,7 @@ export async function uploadToS3(file: Express.Multer.File) {
         );
         return key
     } catch (error) {
-        console.log("Error uploading to S3:", error);
+        console.log("ERROR: Error uploading to S3:", error);
         throw error;
     }
 

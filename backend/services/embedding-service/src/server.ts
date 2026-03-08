@@ -6,10 +6,10 @@ const startServer = async () => {
     await runMigrate();
     await connectQueue();
     await startFileConsumer();
-    console.log("server started")
+    console.log("DEBUG: Server started")
 }
 
 startServer().catch((err) => {
-    console.error("Error starting server:", err);
+    console.error("Error: Error starting server:", err);
     process.exit(1);
 });
