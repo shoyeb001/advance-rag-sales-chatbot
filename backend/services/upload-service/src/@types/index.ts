@@ -4,3 +4,7 @@ export type TDocument = {
     moduleType: string,
     storageKey: string
 }
+
+export type TDocumentStatusParams = {
+    documentId: string
+}
