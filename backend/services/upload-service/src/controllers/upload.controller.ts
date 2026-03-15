@@ -13,8 +13,13 @@ export const uploadFile = async (req: Request, res: Response) => {
         }
         const storageKey = await uploadToS3(file);
         const document = await createDocumentService({ tenantId, fileType: file.mimetype, moduleType, storageKey });
+        //checking if the file is excel file
+        const isExcel = moduleType === 'excel';
+        console.log("INFO: File mimetype:", file.mimetype)
+
+        const routingKey = isExcel ? 'file.uploaded.excel' : 'file.uploaded';
         //publishing event to rabbitmq for file uploaded
-        await publishToQueue('file-upload-events', 'file.uploaded', document);
+        await publishToQueue('file-upload-events', routingKey, document);
         return res.status(200).json({ message: "File uploaded successfully", document })
     } catch (e) {
         console.log("ERROR:", e)
